@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Тарифы Ozon — ПВЗ из Омска</title>
+  <title>Тарифы Ozon — Отправка из Омска (ПВЗ)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,6 +36,24 @@
       background-color: #f4f4f4;
       position: sticky;
       top: 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover {
+      background-color: #e9e9e9;
+    }
+    th::after {
+      content: " ⇵";
+      color: #888;
+      font-size: 10px;
+    }
+    th.sort-asc::after {
+      content: " ↑";
+      color: #000;
+    }
+    th.sort-desc::after {
+      content: " ↓";
+      color: #000;
     }
     select {
       margin: 5px 10px 5px 0;
@@ -55,7 +73,7 @@
     }
     .diff-up { color: #d32f2f; font-weight: bold; }
     .diff-down { color: #2e7d32; font-weight: bold; }
-    .diff-zero, .diff-na { color: #555; }
+    .diff-zero { color: #555; }
     button {
       padding: 6px 12px;
       background: #4CAF50;
@@ -75,7 +93,7 @@
 
 <h2>Тарифы Ozon — Приём на ПВЗ (литры)<br>
 Сравнение: 03.07.2025 → 06.11.2025<br>
-<i>Тарифная зона приёма: <b>Омск</b> (только ПВЗ)</i></h2>
+<i>Отправка из тарифной зоны: <b>Омск</b> (только ПВЗ)</i></h2>
 
 <div class="filters">
   <div>
@@ -94,12 +112,12 @@
 <table id="tariffTable">
   <thead>
     <tr>
-      <th>Кластер получатель</th>
-      <th>Склад получатель</th>
-      <th>Старая цена (руб/л)</th>
-      <th>Новая цена (руб/л)</th>
-      <th>Разница (руб)</th>
-      <th>Изменение (%)</th>
+      <th data-column="0" onclick="sortTable(0)">Кластер получатель</th>
+      <th data-column="1" onclick="sortTable(1)">Склад получатель</th>
+      <th data-column="2" onclick="sortTable(2)">Старая цена (руб/л)</th>
+      <th data-column="3" onclick="sortTable(3)">Новая цена (руб/л)</th>
+      <th data-column="4" onclick="sortTable(4)">Разница (руб)</th>
+      <th data-column="5" onclick="sortTable(5)">Изменение (%)</th>
     </tr>
   </thead>
   <tbody>
@@ -108,9 +126,9 @@
 </table>
 
 <script>
-  // === ДАННЫЕ: только тарифная зона приёма = "Омск", только ПВЗ ===
+  // === ДАННЫЕ: отправка из Омска, только ПВЗ ===
   const data = [
-["Юг","Адыгейск РФЦ",9.9,11.9],
+["Краснодар","Адыгейск РФЦ",9.9,11.9],
 ["Казахстан","Алматы 2 РФЦ",10,12],
 ["Казахстан","Астана РФЦ",10,12],
 ["Саратов","Волгоград МРФЦ",10,12],
@@ -118,45 +136,49 @@
 ["Воронеж","Воронеж-2 РФЦ",10,12],
 ["Москва, МО и Дальние регионы","Гривно РФЦ",8.5,10.2],
 ["Москва, МО и Дальние регионы","Домодедово РФЦ",8.5,10.2],
-["Урал","Екатеринбург РФЦ",4.2,5],
-["Казань","Казань РФЦ",6,7.2],
+["Екатеринбург","Екатеринбург РФЦ",4.2,5.1],
+["Казань","Казань РФЦ",5,6],
 ["Калининград","Калининград МРФЦ",24,28.8],
-["Красноярск","Красноярск МРФЦ",11,13.2],
+["Красноярск","Красноярск МРФЦ",5,6],
+["Кавказ","Махачкала РФЦ",16,19.2],
 ["Беларусь","Минск МПСЦ",13,15.6],
 ["Кавказ","Невинномысск РФЦ",16,19.2],
-["Казань","Нижний Новгород РФЦ",6,7.2],
-["Юг","Новороссийск МРФЦ",9.9,11.9],
-["Сибирь","Новосибирск РФЦ",3.1,3.7],
+["Казань","Нижний Новгород РФЦ",5,6],
+["Краснодар","Новороссийск МРФЦ",9.9,11.9],
+["Новосибирск","Новосибирск РФЦ",3.1,3.8],
 ["Москва, МО и Дальние регионы","Ногинск РФЦ",8.5,10.2],
-["Сибирь","Омск РФЦ",3.1,3.7],
-["Уфа","Оренбург РФЦ",6,7.2],
-["Урал","Пермь РФЦ",4.2,5],
+["Омск","Омск РФЦ",3.1,3.8],
+["Оренбург","Оренбург РФЦ",6,7.2],
+["Пермь","Пермь РФЦ",4.2,5.1],
 ["Москва, МО и Дальние регионы","Петровское РФЦ",8.5,10.2],
 ["Москва, МО и Дальние регионы","Пушкино-1 РФЦ",8.5,10.2],
 ["Москва, МО и Дальние регионы","Пушкино-2 РФЦ",8.5,10.2],
-["Юг","Ростов-На-Дону РФЦ",9.9,11.9],
+["Ростов","Ростов-На-Дону РФЦ",9.9,11.9],
 ["Самара","Самара РФЦ",5,6],
-["Санкт-Петербург и СЗО","Санкт-Петербург РФЦ",6.2,7.4],
+["Санкт-Петербург и СЗО","Санкт-Петербург РФЦ",6.2,7.5],
 ["Саратов","Саратов РФЦ",10,12],
 ["Москва, МО и Дальние регионы","Софьино РФЦ",8.5,10.2],
-["Санкт-Петербург и СЗО","СПБ Бугры РФЦ",6.2,7.4],
-["Санкт-Петербург и СЗО","СПБ Колпино РФЦ",6.2,7.4],
-["Санкт-Петербург и СЗО","СПБ Шушары РФЦ",6.2,7.4],
-["Москва, МО и Дальние регионы","Тверь РФЦ",8.5,10.2],
-["Тюмень","Тюмень РФЦ",7,8.4],
+["Санкт-Петербург и СЗО","СПБ Бугры РФЦ",6.2,7.5],
+["Санкт-Петербург и СЗО","СПБ Колпино РФЦ",6.2,7.5],
+["Санкт-Петербург и СЗО","СПБ Шушары РФЦ",6.2,7.5],
+["Тверь","Тверь РФЦ",8.5,10.2],
+["Тюмень","Тюмень РФЦ",3,3.6],
 ["Уфа","Уфа РФЦ",6,7.2],
-["Дальний Восток","Хабаровск-2 РФЦ",24,28.8],
+["Дальний Восток","Хабаровск-2 РФЦ",10,12],
 ["Москва, МО и Дальние регионы","Хоругвино РФЦ",8.5,10.2],
-["Ярославль","Ярославль РФЦ",11,13.2]
+["Ярославль","Ярославль РФЦ",14.4,17.3]
   ];
+
+  let currentSort = { column: null, direction: 'asc' };
+  let filteredData = [...data];
 
   function populateFilters() {
     const clusters = new Set();
     const warehouses = new Set();
 
     data.forEach(row => {
-      if (row[0]) clusters.add(row[0]);
-      if (row[1]) warehouses.add(row[1]);
+      clusters.add(row[0]);
+      warehouses.add(row[1]);
     });
 
     const clusterSelect = document.getElementById('filter-cluster');
@@ -176,19 +198,19 @@
     });
   }
 
-  function renderTable(filteredData = data) {
+  function renderTable(dataToShow = filteredData) {
     const tbody = document.querySelector('#tariffTable tbody');
     tbody.innerHTML = '';
-    filteredData.forEach(row => {
+    dataToShow.forEach(row => {
       const [cluster, warehouse, oldPrice, newPrice] = row;
-      let diff = newPrice - oldPrice;
-      let pctChange = ((newPrice - oldPrice) / oldPrice * 100);
-      let diffClass = diff > 0 ? 'diff-up' : diff < 0 ? 'diff-down' : 'diff-zero';
+      const diff = newPrice - oldPrice;
+      const pctChange = ((newPrice - oldPrice) / oldPrice * 100);
+      const diffClass = diff > 0 ? 'diff-up' : diff < 0 ? 'diff-down' : 'diff-zero';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${cluster || ''}</td>
-        <td>${warehouse || ''}</td>
+        <td>${cluster}</td>
+        <td>${warehouse}</td>
         <td>${oldPrice.toFixed(1)}</td>
         <td>${newPrice.toFixed(1)}</td>
         <td class="${diffClass}">${diff >= 0 ? '+' : ''}${diff.toFixed(1)}</td>
@@ -198,21 +220,59 @@
     });
   }
 
+  function sortTable(columnIndex) {
+    const direction = (currentSort.column === columnIndex && currentSort.direction === 'asc') ? 'desc' : 'asc';
+    currentSort = { column: columnIndex, direction };
+
+    // Сброс индикаторов
+    document.querySelectorAll('th').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+    });
+    document.querySelector(`th[data-column="${columnIndex}"]`).classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+
+    filteredData.sort((a, b) => {
+      let valA = a[columnIndex];
+      let valB = b[columnIndex];
+
+      // Для числовых столбцов (2–5)
+      if (columnIndex >= 2) {
+        valA = parseFloat(valA);
+        valB = parseFloat(valB);
+      }
+
+      if (valA < valB) return direction === 'asc' ? -1 : 1;
+      if (valA > valB) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    renderTable(filteredData);
+  }
+
   function applyFilters() {
     const cluster = document.getElementById('filter-cluster').value;
     const warehouse = document.getElementById('filter-warehouse').value;
 
-    const filtered = data.filter(row =>
-      (cluster === '' || (row[0] && row[0] === cluster)) &&
-      (warehouse === '' || (row[1] && row[1] === warehouse))
+    filteredData = data.filter(row =>
+      (cluster === '' || row[0] === cluster) &&
+      (warehouse === '' || row[1] === warehouse)
     );
 
-    renderTable(filtered);
+    // Сохраняем сортировку после фильтрации
+    if (currentSort.column !== null) {
+      sortTable(currentSort.column);
+    } else {
+      renderTable(filteredData);
+    }
   }
 
   function resetFilters() {
     document.getElementById('filter-cluster').value = '';
     document.getElementById('filter-warehouse').value = '';
+    filteredData = [...data];
+    currentSort = { column: null, direction: 'asc' };
+    document.querySelectorAll('th').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+    });
     renderTable();
   }
 
