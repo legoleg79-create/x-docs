@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Тарифы Ozon — ПВЗ из Омска</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #fff;
+      color: #000;
+    }
+    .header-link {
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    .header-link a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+    .header-link a:hover {
+      text-decoration: underline;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+      position: sticky;
+      top: 0;
+    }
+    select {
+      margin: 5px 10px 5px 0;
+      padding: 6px;
+      font-size: 13px;
+      min-width: 180px;
+    }
+    .filters {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+    .diff-up { color: #d32f2f; font-weight: bold; }
+    .diff-down { color: #2e7d32; font-weight: bold; }
+    .diff-zero, .diff-na { color: #555; }
+    button {
+      padding: 6px 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+
+<div class="header-link">
+  Создано: <a href="https://t.me/G_ozon" target="_blank">Гозон — уютное бухтение про озон</a>
+</div>
+
+<h2>Тарифы Ozon — Приём на ПВЗ (литры)<br>
+Сравнение: 03.07.2025 → 06.11.2025<br>
+<i>Тарифная зона приёма: <b>Омск</b> (только ПВЗ)</i></h2>
+
+<div class="filters">
+  <div>
+    <label>Кластер получатель:<br>
+      <select id="filter-cluster"><option value="">Все</option></select>
+    </label>
+  </div>
+  <div>
+    <label>Склад получатель:<br>
+      <select id="filter-warehouse"><option value="">Все</option></select>
+    </label>
+  </div>
+  <button onclick="resetFilters()">Сбросить фильтры</button>
+</div>
+
+<table id="tariffTable">
+  <thead>
+    <tr>
+      <th>Кластер получатель</th>
+      <th>Склад получатель</th>
+      <th>Старая цена (руб/л)</th>
+      <th>Новая цена (руб/л)</th>
+      <th>Разница (руб)</th>
+      <th>Изменение (%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Заполняется скриптом -->
+  </tbody>
+</table>
+
+<script>
+  // === ДАННЫЕ: только тарифная зона приёма = "Омск", только ПВЗ ===
+  const data = [
+["Юг","Адыгейск РФЦ",9.9,11.9],
+["Казахстан","Алматы 2 РФЦ",10,12],
+["Казахстан","Астана РФЦ",10,12],
+["Саратов","Волгоград МРФЦ",10,12],
+["Воронеж","Воронеж МРФЦ",10,12],
+["Воронеж","Воронеж-2 РФЦ",10,12],
+["Москва, МО и Дальние регионы","Гривно РФЦ",8.5,10.2],
+["Москва, МО и Дальние регионы","Домодедово РФЦ",8.5,10.2],
+["Урал","Екатеринбург РФЦ",4.2,5],
+["Казань","Казань РФЦ",6,7.2],
+["Калининград","Калининград МРФЦ",24,28.8],
+["Красноярск","Красноярск МРФЦ",11,13.2],
+["Беларусь","Минск МПСЦ",13,15.6],
+["Кавказ","Невинномысск РФЦ",16,19.2],
+["Казань","Нижний Новгород РФЦ",6,7.2],
+["Юг","Новороссийск МРФЦ",9.9,11.9],
+["Сибирь","Новосибирск РФЦ",3.1,3.7],
+["Москва, МО и Дальние регионы","Ногинск РФЦ",8.5,10.2],
+["Сибирь","Омск РФЦ",3.1,3.7],
+["Уфа","Оренбург РФЦ",6,7.2],
+["Урал","Пермь РФЦ",4.2,5],
+["Москва, МО и Дальние регионы","Петровское РФЦ",8.5,10.2],
+["Москва, МО и Дальние регионы","Пушкино-1 РФЦ",8.5,10.2],
+["Москва, МО и Дальние регионы","Пушкино-2 РФЦ",8.5,10.2],
+["Юг","Ростов-На-Дону РФЦ",9.9,11.9],
+["Самара","Самара РФЦ",5,6],
+["Санкт-Петербург и СЗО","Санкт-Петербург РФЦ",6.2,7.4],
+["Саратов","Саратов РФЦ",10,12],
+["Москва, МО и Дальние регионы","Софьино РФЦ",8.5,10.2],
+["Санкт-Петербург и СЗО","СПБ Бугры РФЦ",6.2,7.4],
+["Санкт-Петербург и СЗО","СПБ Колпино РФЦ",6.2,7.4],
+["Санкт-Петербург и СЗО","СПБ Шушары РФЦ",6.2,7.4],
+["Москва, МО и Дальние регионы","Тверь РФЦ",8.5,10.2],
+["Тюмень","Тюмень РФЦ",7,8.4],
+["Уфа","Уфа РФЦ",6,7.2],
+["Дальний Восток","Хабаровск-2 РФЦ",24,28.8],
+["Москва, МО и Дальние регионы","Хоругвино РФЦ",8.5,10.2],
+["Ярославль","Ярославль РФЦ",11,13.2]
+  ];
+
+  function populateFilters() {
+    const clusters = new Set();
+    const warehouses = new Set();
+
+    data.forEach(row => {
+      if (row[0]) clusters.add(row[0]);
+      if (row[1]) warehouses.add(row[1]);
+    });
+
+    const clusterSelect = document.getElementById('filter-cluster');
+    const warehouseSelect = document.getElementById('filter-warehouse');
+
+    Array.from(clusters).sort().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      clusterSelect.appendChild(opt);
+    });
+    Array.from(warehouses).sort().forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w;
+      opt.textContent = w;
+      warehouseSelect.appendChild(opt);
+    });
+  }
+
+  function renderTable(filteredData = data) {
+    const tbody = document.querySelector('#tariffTable tbody');
+    tbody.innerHTML = '';
+    filteredData.forEach(row => {
+      const [cluster, warehouse, oldPrice, newPrice] = row;
+      let diff = newPrice - oldPrice;
+      let pctChange = ((newPrice - oldPrice) / oldPrice * 100);
+      let diffClass = diff > 0 ? 'diff-up' : diff < 0 ? 'diff-down' : 'diff-zero';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${cluster || ''}</td>
+        <td>${warehouse || ''}</td>
+        <td>${oldPrice.toFixed(1)}</td>
+        <td>${newPrice.toFixed(1)}</td>
+        <td class="${diffClass}">${diff >= 0 ? '+' : ''}${diff.toFixed(1)}</td>
+        <td class="${diffClass}">${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(1)}%</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function applyFilters() {
+    const cluster = document.getElementById('filter-cluster').value;
+    const warehouse = document.getElementById('filter-warehouse').value;
+
+    const filtered = data.filter(row =>
+      (cluster === '' || (row[0] && row[0] === cluster)) &&
+      (warehouse === '' || (row[1] && row[1] === warehouse))
+    );
+
+    renderTable(filtered);
+  }
+
+  function resetFilters() {
+    document.getElementById('filter-cluster').value = '';
+    document.getElementById('filter-warehouse').value = '';
+    renderTable();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    populateFilters();
+    renderTable();
+    document.getElementById('filter-cluster').addEventListener('change', applyFilters);
+    document.getElementById('filter-warehouse').addEventListener('change', applyFilters);
+  });
+</script>
+
+</body>
+</html>
